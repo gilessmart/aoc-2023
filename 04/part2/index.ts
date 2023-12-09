@@ -14,8 +14,9 @@ const startTime = new Date();
 const input = fs.readFileSync(inputPath, { encoding: 'utf-8' });
 const inputLines = input.trim().split('\n').map(x => x.trim());
 const cards = inputLines.map(line => parseCard(line));
-const totalCards = calculateTotalCards(cards);
-console.log(`total cards: ${totalCards}`);
+const prizeCardMap = buildPrizeCardNumberMap();
+const cardCounts = cards.map(card => getCountIncludingPrizeCards(card.cardNumber));
+console.log(`total cards: ${sum(cardCounts)}`);
 
 const endTime = new Date();
 console.log(`elapsed: ${endTime.valueOf() - startTime.valueOf()}ms`);
@@ -32,31 +33,27 @@ function parseCard(text: string): Card {
 function parseNumberList(text: string): number[] {
     const matches = text.trim().matchAll(/\d+/g);
     const numbers: number[] = [];
-    for (const match of matches) {
+    for (const match of matches)
         numbers.push(parseInt(match[0]));
-    }
     return numbers;
 }
 
-function calculateTotalCards(cards: Card[]) {
-    const prizeCardIdMap = new Map<number, number[]>();
-    for (const card of cards) {
-        const prizeCards = getPrizeCards(card, cards);
-        prizeCardIdMap.set(card.cardNumber, prizeCards.map(c => c.cardNumber));
-    }
-
-    const prizeCardCountMap = new Map<number, number>();
-    for (const card of cards.reverse()) {
-        const prizeCardIds = prizeCardIdMap.get(card.cardNumber) as number[];
-        const prizeCardCounts = prizeCardIds.map(id => prizeCardCountMap.get(id) as number);
-        prizeCardCountMap.set(card.cardNumber, prizeCardIds.length + sum(prizeCardCounts));
-    }
-
-    return cards.length + sum(prizeCardCountMap.values());
+function buildPrizeCardNumberMap(): Map<number, number[]> {
+    const prizeCardMap = new Map<number, number[]>();
+    for (const card of cards)
+        prizeCardMap.set(card.cardNumber, getPrizeCardNumbers(card));
+    return prizeCardMap;
 }
 
-function getPrizeCards(card: Card, cards: Card[]): Card[] {
+function getPrizeCardNumbers(card: Card): number[] {
     const startCardNum = card.cardNumber + 1;
     const endCardNum = card.cardNumber + card.matchCount;
-    return cards.filter(card => card.cardNumber >= startCardNum && card.cardNumber <= endCardNum);
+    const prizeCards = cards.filter(card => card.cardNumber >= startCardNum && card.cardNumber <= endCardNum);
+    return prizeCards.map(prizeCard => prizeCard.cardNumber);
+}
+
+function getCountIncludingPrizeCards(cardNumber: number): number {
+    const prizeCardNumbers = prizeCardMap.get(cardNumber) as number[];
+    const prizeCardCounts = prizeCardNumbers.map(prizeCardNumber => getCountIncludingPrizeCards(prizeCardNumber));
+    return 1 + sum(prizeCardCounts);
 }
