@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import Card from './Card';
-
-const startTime = new Date();
+import { sum } from './util';
 
 const inputPath = process.argv[2];
 if (inputPath === undefined) {
@@ -10,12 +9,13 @@ if (inputPath === undefined) {
 }
 
 console.log(`input path: ${inputPath}`);
+const startTime = new Date();
 
 const input = fs.readFileSync(inputPath, { encoding: 'utf-8' });
 const inputLines = input.trim().split('\n').map(x => x.trim());
 const cards = inputLines.map(line => parseCard(line));
-processCards(cards);
-console.log(cards.length);
+const totalCards = calculateTotalCards(cards);
+console.log(`total cards: ${totalCards}`);
 
 const endTime = new Date();
 console.log(`elapsed: ${endTime.valueOf() - startTime.valueOf()}ms`);
@@ -38,20 +38,25 @@ function parseNumberList(text: string): number[] {
     return numbers;
 }
 
-function processCards(cards: Card[]) {
-    for (let i = 0; i < cards.length; i++) {
-        const winnings = getWinnings(cards[i], cards);
-        cards.push(...winnings);
+function calculateTotalCards(cards: Card[]) {
+    const prizeCardIdMap = new Map<number, number[]>();
+    for (const card of cards) {
+        const prizeCards = getPrizeCards(card, cards);
+        prizeCardIdMap.set(card.cardNumber, prizeCards.map(c => c.cardNumber));
     }
+
+    const prizeCardCountMap = new Map<number, number>();
+    for (const card of cards.reverse()) {
+        const prizeCardIds = prizeCardIdMap.get(card.cardNumber) as number[];
+        const prizeCardCounts = prizeCardIds.map(id => prizeCardCountMap.get(id) as number);
+        prizeCardCountMap.set(card.cardNumber, prizeCardIds.length + sum(prizeCardCounts));
+    }
+
+    return cards.length + sum(prizeCardCountMap.values());
 }
 
-function getWinnings(card: Card, cards: Card[]): Card[] {
-    const winnings: Card[] = [];
-
-    for (let i = 0; i < card.matchCount; i++) {
-        const wonCard = cards.find(c => c.cardNumber === card.cardNumber + 1 + i);
-        winnings.push(wonCard as Card);
-    }
-
-    return winnings;
+function getPrizeCards(card: Card, cards: Card[]): Card[] {
+    const startCardNum = card.cardNumber + 1;
+    const endCardNum = card.cardNumber + card.matchCount;
+    return cards.filter(card => card.cardNumber >= startCardNum && card.cardNumber <= endCardNum);
 }
