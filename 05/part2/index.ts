@@ -10,11 +10,15 @@ if (inputPath === undefined) {
 }
 
 console.log(`input path: ${inputPath}`);
+const startTime = new Date();
 
 const input = fs.readFileSync(inputPath, { encoding: 'utf-8' });
 const { seedRanges, mappers } = parseInput(input);
 const lowestLocationNumber = getLowestLocationNumber(seedRanges, mappers);
-console.log(`lowest location number: ${lowestLocationNumber}`)
+console.log(`lowest location number: ${lowestLocationNumber}`);
+
+const endTime = new Date();
+console.log(`elapsed: ${endTime.valueOf() - startTime.valueOf()}ms`);
 
 function parseInput(input: string): { seedRanges: SeedRangeIterator[], mappers: Mapper[] } {
     const sections = input.split('\n\n');
@@ -52,6 +56,7 @@ function getLowestLocationNumber(seedRanges: SeedRangeIterator[], mappers: Mappe
     let lowestLocationNumber: number | null = null;
 
     for (const seedRange of seedRanges) {
+        console.log(`processing seed range ${seedRange.startNum} -> ${seedRange.startNum + seedRange.rangeLength - 1} (size: ${seedRange.rangeLength})`);
         while (true) {
             const seedNumber = seedRange.getNext();
             if (seedNumber === null) break;
