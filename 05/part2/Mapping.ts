@@ -1,17 +1,11 @@
 export default class Mapping {
-    readonly dstRangeStart: number;
+    readonly dstSrcOffset: number;
     readonly srcRangeStart: number;
-    readonly rangeLength: number;
+    readonly srcRangeEnd: number;
 
     constructor(dstRangeStart: number, srcRangeStart: number, rangeLength: number) {
-        this.dstRangeStart = dstRangeStart;
+        this.dstSrcOffset = dstRangeStart - srcRangeStart;
         this.srcRangeStart = srcRangeStart;
-        this.rangeLength = rangeLength;
-    }
-
-    map(src: number): number | null {
-        if (src >= this.srcRangeStart && src < this.srcRangeStart + this.rangeLength)
-            return this.dstRangeStart + src - this.srcRangeStart;
-        return null;
+        this.srcRangeEnd = srcRangeStart + rangeLength - 1;
     }
 }
