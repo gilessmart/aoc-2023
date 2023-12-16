@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import Mapper from './Mapper';
-import Mapping from './Mapping';
 import SeedRangeIterator from './SeedRangeIterator';
+import MappingData from './MappingData';
 
 const inputPath = process.argv[2];
 if (inputPath === undefined) {
@@ -44,16 +44,16 @@ function parseMapper(text: string): Mapper {
     return new Mapper(mappings);
 }
 
-function parseMapping(line: string): Mapping {
+function parseMapping(line: string): MappingData {
     const match = line.match(/(\d+)\s+(\d+)\s+(\d+)/) as RegExpMatchArray;
-    const destinationRangeStart = parseInt(match[1]);
-    const sourceRangeStart = parseInt(match[2]);
+    const dstRangeStart = parseInt(match[1]);
+    const srcRangeStart = parseInt(match[2]);
     const rangeLength = parseInt(match[3]);
-    return new Mapping(destinationRangeStart, sourceRangeStart, rangeLength);
+    return { dstRangeStart, srcRangeStart, rangeLength };
 }
 
 function getLowestLocationNumber(seedRanges: SeedRangeIterator[], mappers: Mapper[]): number | null {
-    let lowestLocationNumber: number | null = null;
+    let lowestLocationNumber = Number.POSITIVE_INFINITY;
 
     for (const seedRange of seedRanges) {
         console.log(`processing seed range ${seedRange.startNum} -> ${seedRange.startNum + seedRange.rangeLength - 1} (size: ${seedRange.rangeLength})`);
@@ -61,7 +61,7 @@ function getLowestLocationNumber(seedRanges: SeedRangeIterator[], mappers: Mappe
             const seedNumber = seedRange.getNext();
             if (seedNumber === null) break;
             const locationNumber = runMappers(seedNumber, mappers);
-            if (lowestLocationNumber === null || locationNumber < lowestLocationNumber)
+            if (locationNumber < lowestLocationNumber)
                 lowestLocationNumber = locationNumber;
         }
     }

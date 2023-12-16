@@ -1,11 +1,11 @@
 export default class Mapping {
-    readonly dstSrcOffset: number;
     readonly srcRangeStart: number;
     readonly srcRangeEnd: number;
+    readonly dstSrcOffset: number;
 
-    constructor(dstRangeStart: number, srcRangeStart: number, rangeLength: number) {
-        this.dstSrcOffset = dstRangeStart - srcRangeStart;
+    constructor(srcRangeStart: number, srcRangeEnd: number, dstSrcOffset: number) {
         this.srcRangeStart = srcRangeStart;
-        this.srcRangeEnd = srcRangeStart + rangeLength - 1;
+        this.srcRangeEnd = srcRangeEnd;
+        this.dstSrcOffset = dstSrcOffset;
     }
 }
