@@ -1,0 +1,19 @@
+{
+  "name": "part1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "preexample": "tsc",
+    "example": "node index.js input/example.txt",
+    "prereal": "tsc",
+    "real": "node index.js input/real.txt"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.11.6",
+    "typescript": "^5.3.3"
+  }
+}
