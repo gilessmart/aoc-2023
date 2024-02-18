@@ -1,0 +1,23 @@
+{
+  "name": "part2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "tsc",
+    "test": "jasmine",
+    "preexample": "tsc",
+    "example": "node index.js input/example.txt",
+    "prereal": "tsc",
+    "real": "node index.js input/real.txt"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/jasmine": "^5.1.4",
+    "@types/node": "^20.11.10",
+    "jasmine": "^5.1.0",
+    "typescript": "^5.3.3"
+  }
+}
